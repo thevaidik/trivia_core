@@ -6,3 +6,10 @@
 //
 
 import Foundation
+import SwiftUI
+
+struct TriviaView: View {
+    var body: some View {
+        QuestionView()
+    }
+}

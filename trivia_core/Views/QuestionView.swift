@@ -25,14 +25,24 @@ struct QuestionView: View {
             Progressbar(progress: 40)
             
             VStack(alignment: .leading, spacing:20){
-                Text("What is the capital of France?")
+                Text("Bulls are attracted to color red.")
+                    .font(.system(size: 20))
+                    .bold()
+                    .foregroundColor(.gray)
                     
+                AnswerRow(answer: Answer(text: "false", isCorrect: true))
+                AnswerRow(answer: Answer(text: "true", isCorrect: false))
                 
             }
+            
+            PrimaryButton(text: "Next Question")
+            
+            //Spacer()
         }
         .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color(red: 0.98, green: 0.92, blue: 0.84))
+        .navigationBarHidden(true)
     }
 }
 
