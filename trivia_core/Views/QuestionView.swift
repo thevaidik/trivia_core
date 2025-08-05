@@ -30,12 +30,19 @@ struct QuestionView: View {
             
             VStack(alignment: .leading, spacing:20){
                 
-                Text(triviaManager.question)
-                    .font(.system(size: 20))
-                    .bold()
-                    .foregroundColor(.gray)
-                    
-                ForEach(triviaManager.answerChoices, id:\.id) {
+                if let question = triviaManager.question {
+                    Text(question)
+                        .font(.system(size: 20))
+                        .bold()
+                        .foregroundColor(.gray)
+                } else {
+                    Text("Loading question...")
+                        .font(.system(size: 20))
+                        .bold()
+                        .foregroundColor(.gray)
+                }
+                
+                ForEach(triviaManager.answerChoices, id:\.id) { answer in
                     AnswerRow(answer: answer)
                         .environmentObject(triviaManager)
                 }

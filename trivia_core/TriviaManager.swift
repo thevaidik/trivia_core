@@ -35,7 +35,16 @@ class TriviaManager: ObservableObject {
         do {
             let (data, response) = try await URLSession.shared.data(for: urlRequest)
             
-            guard (response as? HTTPURLResponse)?.statusCode == 200 else { fatalError ("Error")}
+            //guard (response as? HTTPURLResponse)?.statusCode == 200 else { fatalError ("Error")}
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("Invalid response type")
+                return
+            }
+
+            guard httpResponse.statusCode == 200 else {
+                print("Failed with status code: \(httpResponse.statusCode)")
+                return
+            }
             
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
