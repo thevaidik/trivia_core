@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 struct AnswerRow: View {
+    @EnvironmentObject var triviaManager: TriviaManager
+
     var answer: Answer
     @State private var isSelected = false
     
@@ -32,12 +34,14 @@ struct AnswerRow: View {
         }
         .padding()
         .frame (maxWidth: .infinity, alignment: .leading)
-        .foregroundColor(isSelected ? .blue : .gray)
+        .foregroundColor(triviaManager.answerSelected ? ( isSelected ? .blue : .gray) : Color("AccentColor"))
         .background(.white)
         .cornerRadius(10)
         .shadow(color: isSelected ? (answer.isCorrect ? green : red) : .gray, radius: 10, x: 0.5, y:0.5)
         .onTapGesture {
-            isSelected = true
+            if !triviaManager.answerSelected {
+                isSelected = true
+            }
         }
         
     }
@@ -45,4 +49,5 @@ struct AnswerRow: View {
 
 #Preview {
     AnswerRow(answer: Answer(text: "SIngle", isCorrect: true ))
+        .environmentObject(TriviaManager())
 }

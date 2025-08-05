@@ -9,34 +9,46 @@ import Foundation
 import SwiftUI
 
 struct QuestionView: View {
+    @EnvironmentObject var triviaManager : TriviaManager
+
+
     var body: some View {
         VStack(spacing : 40) {
             HStack {
+                
                 Text("Trivia Game")
                     .lilacTitle()
                 
                 Spacer()
                 
-                Text("1 out of 10")
+                Text("\(triviaManager.index + 1) out of \(triviaManager.length)")
                     .foregroundColor(.blue)
                     .fontWeight(.heavy)
             }
             
-            Progressbar(progress: 40)
+            Progressbar(progress: triviaManager.progress)
             
             VStack(alignment: .leading, spacing:20){
-                Text("Bulls are attracted to color red.")
+                
+                Text(triviaManager.question)
                     .font(.system(size: 20))
                     .bold()
                     .foregroundColor(.gray)
                     
-                AnswerRow(answer: Answer(text: "false", isCorrect: true))
-                AnswerRow(answer: Answer(text: "true", isCorrect: false))
-                
+                ForEach(triviaManager.answerChoices, id:\.id) {
+                    AnswerRow(answer: answer)
+                        .environmentObject(triviaManager)
+                }
             }
-            
-            PrimaryButton(text: "Next Question")
-            
+             
+            Button {
+                triviaManager.geToNext()
+            } label :{
+                PrimaryButton(text: "Next Question") //addcolor if user is not answering and going next
+
+            }
+            .disabled(!triviaManager.answerSelected)
+                        
             //Spacer()
         }
         .padding()
@@ -48,4 +60,5 @@ struct QuestionView: View {
 
 #Preview {
     QuestionView()
+        .environmentObject(TriviaManager())
 }
