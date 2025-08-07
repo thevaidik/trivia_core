@@ -13,19 +13,34 @@ class TriviaManager: ObservableObject {
     @Published private(set) var length = 0
     @Published private(set) var index = 0
     @Published private(set) var reachedEnd = false
-    @Published private(set) var answerSelected = false
+    @Published private(set) var answerSelectState = false
+    @Published private(set) var selectedAnswer: Answer?
     @Published private(set) var question : AttributedString?
     @Published private(set) var answerChoices: [Answer] = []
     @Published private(set) var progress : CGFloat = 0
     @Published private(set) var score = 0
+    @Published private(set) var isLoading = false
+    
+//    init() {
+//        Task.init {
+//            await fetchTrivia()
+//        }
+//    }
     
     init() {
-        Task.init {
-            await fetchTrivia()
+        if trivia.isEmpty {
+            Task {
+                await fetchTrivia()
+            }
         }
     }
     
     func fetchTrivia() async {
+        DispatchQueue.main.async {
+            self.isLoading = true
+        }
+        
+        print("Fetching trivia data...")
         guard let url = URL(string: "https://opentdb.com/api.php?amount=10&category=9&difficulty=medium&type=multiple") else {
             fatalError ("Missing URL")
         }
@@ -42,8 +57,16 @@ class TriviaManager: ObservableObject {
             }
 
             guard httpResponse.statusCode == 200 else {
-                print("Failed with status code: \(httpResponse.statusCode)")
-                return
+                if httpResponse.statusCode == 429 {
+                    print("Rate limit exceeded. Please wait before making another request.")
+                    // Optionally retry after a delay
+                    try? await Task.sleep(nanoseconds: 5_000_000_000) // 5 second delay
+                    await fetchTrivia() // Retry once
+                    return
+                } else {
+                    print("Failed with status code: \(httpResponse.statusCode)")
+                    return
+                }
             }
             
             let decoder = JSONDecoder()
@@ -55,42 +78,59 @@ class TriviaManager: ObservableObject {
                 self.progress = 0
                 self.score = 0
                 self.reachedEnd = false
+                self.isLoading = false
                 
                 self.trivia = decodedData.results
                 self.length = self.trivia.count
+                print("Successfully loaded \(self.length) trivia questions")
                 self.setQuestion()
             }
             
         }
         catch {
             print("Error fetching data: \(error)")
+            DispatchQueue.main.async {
+                self.isLoading = false
+            }
         }
     }
     
-    func geToNext() {
+    func goToNext() {
+        print("goToNext called - current index: \(index), length: \(length)")
         if index + 1 < length {
             index += 1
+            print("Moving to next question: \(index)")
             setQuestion()
         } else {
+            print("Reached end of questions")
             reachedEnd = true
         }
     }
     
     func setQuestion() {
-        answerSelected = false
+        answerSelectState = false
+        selectedAnswer = nil
         progress = CGFloat(Double(index + 1) / Double(length) * 360)
         
         if index < length {
             let currentTriviaQuestion = trivia[index]
             question = currentTriviaQuestion.formattedQuestion
             answerChoices = currentTriviaQuestion.answers
+            print("Set question \(index + 1) of \(length)")
+            print("Question: \(currentTriviaQuestion.question)")
+            print("Answer choices count: \(answerChoices.count)")
+        } else {
+            print("Error: No questions available at index \(index)")
         }
     }
     
     func selectAnswer(answer: Answer) {
-        answerSelected = true
+        print("Answer selected: \(answer.text), isCorrect: \(answer.isCorrect)")
+        answerSelectState = true
+        selectedAnswer = answer
         if answer.isCorrect {
             score += 1
+            print("Score increased to: \(score)")
         }
     }
     

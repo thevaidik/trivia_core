@@ -30,16 +30,21 @@ struct QuestionView: View {
             
             VStack(alignment: .leading, spacing:20){
                 
-                if let question = triviaManager.question {
+                if triviaManager.isLoading {
+                    Text("Loading question...")
+                        .font(.system(size: 20))
+                        .bold()
+                        .foregroundColor(.gray)
+                } else if let question = triviaManager.question {
                     Text(question)
                         .font(.system(size: 20))
                         .bold()
                         .foregroundColor(.gray)
                 } else {
-                    Text("Loading question...")
+                    Text("No question available")
                         .font(.system(size: 20))
                         .bold()
-                        .foregroundColor(.gray)
+                        .foregroundColor(.red)
                 }
                 
                 ForEach(triviaManager.answerChoices, id:\.id) { answer in
@@ -49,12 +54,12 @@ struct QuestionView: View {
             }
              
             Button {
-                triviaManager.geToNext()
+                triviaManager.goToNext()
             } label :{
                 PrimaryButton(text: "Next Question") //addcolor if user is not answering and going next
 
             }
-            .disabled(!triviaManager.answerSelected)
+            .disabled(!triviaManager.answerSelectState)
                         
             //Spacer()
         }

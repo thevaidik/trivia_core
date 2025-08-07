@@ -11,7 +11,10 @@ struct AnswerRow: View {
     @EnvironmentObject var triviaManager: TriviaManager
 
     var answer: Answer
-    @State private var isSelected = false
+    
+    private var isSelected: Bool {
+        triviaManager.selectedAnswer?.id == answer.id
+    }
     
     var green = Color(hue: 0.437, saturation: 0.711, brightness: 0.711)
     var red = Color(red: 0.71, green: 0.094, blue: 0.1)
@@ -34,13 +37,13 @@ struct AnswerRow: View {
         }
         .padding()
         .frame (maxWidth: .infinity, alignment: .leading)
-        .foregroundColor(triviaManager.answerSelected ? ( isSelected ? .blue : .gray) : Color("AccentColor"))
+        .foregroundColor(triviaManager.answerSelectState ? ( isSelected ? .blue : .gray) : .black)
         .background(.white)
         .cornerRadius(10)
         .shadow(color: isSelected ? (answer.isCorrect ? green : red) : .gray, radius: 10, x: 0.5, y:0.5)
         .onTapGesture {
-            if !triviaManager.answerSelected {
-                isSelected = true
+            if !triviaManager.answerSelectState {
+                triviaManager.selectAnswer(answer: answer)
             }
         }
         

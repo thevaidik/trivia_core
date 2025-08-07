@@ -24,7 +24,7 @@ struct ContentView: View {
                 NavigationLink {
                     
                     TriviaView()
-                        .environmentObject(TriviaManager())
+                        .environmentObject(triviaManager)
                 } label:
                 {
                     
